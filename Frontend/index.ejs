@@ -1,0 +1,85 @@
+<%- include('header'); -%>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link href="https://pro.fontawesome.com/releases/v5.13.1/css/all.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">        
+        <link rel="stylesheet" href="dist/css/index.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+    </head>
+   <body onload="myFunction()" style="margin:0;">  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div id="loader"></div>
+    <div style="display:none;" id="myDiv" class="animate-bottom">
+           <!--MAIN BODY-->
+      <section style="margin-bottom: 0;">
+        
+        <div class="d-flex justify-content-center head">
+            <h1 style="font-weight: 900;">
+              <center>
+              <img src="https://nodei.co/npm/sharding-stats.png" size="10"></center><br><hr><br><span style="font-size: 40px;"><span class="span" style="color:#0AD3D1; font-style: italic;" width="100" height="200">Welcome to sharding-stats
+              </h1>
+        </div>
+        This package lets you monitor and manager shards of your bot. This package was originally developed by Meister#9667 but due to him deprecating the package. <br>
+        I am making, the most of the code used in this package is from discord-live-stats.
+        <br>
+      </section>
+
+<br>
+<br>
+<br>
+<br>
+
+
+        <section>
+          <div class="footer">
+            Dashboard designed by Tomato#6966
+        </div>
+        </section>
+      </div>
+    </body>
+</html>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('success') && urlParams.get('success')) {
+      Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          showCloseButton: true,
+          text: urlParams.get('message'),
+          footer: 'Copyright 2021 &copy Logix Development - All right Reserved.'
+      }).then((result) => {
+          window.location.href = urlParams.get("redirect") ? urlParams.get("redirect") : "/";
+      })
+  }
+  if (urlParams.has('error') && urlParams.get('error')) {
+      Swal.fire({
+          icon: 'error',
+          title: 'An Error occurred!',
+          text: urlParams.get('message'),
+          showCloseButton: true,
+          footer: 'Copyright 2021 &copy Logix Development - All right Reserved'
+      }).then((result) => {
+          window.location.href = urlParams.get("redirect") ? urlParams.get("redirect") : "/";
+      })
+  }
+</script>
+
+<script>
+  var myVar;
+  
+  function myFunction() {
+    myVar = setTimeout(showPage, 3000);
+  }
+  
+  function showPage() {
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("myDiv").style.display = "block";
+  }
+  </script>
+  
+ 

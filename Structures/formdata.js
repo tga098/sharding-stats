@@ -5,28 +5,30 @@ class FormData {
     _patch(newdata){
         if(!this.shard.has(newdata.id)) return this._add(newdata);
         this.shard.set(newdata.id, {
-            id: newdata.id,
-            status: newdata.status,
-            message: newdata.message,
-            cpu: newdata.cpu,
-            ram: newdata.ram,
-            ping: newdata.ping,
-            guildcount: newdata.guildcount,
-            upsince: newdata.upsince,
+            //id: newdata.id,
+            //status: newdata.status,
+            //message: newdata.message,
+            //cpu: newdata.cpu,
+            //ram: newdata.ram,
+            //ping: newdata.ping,
+            //guildcount: newdata.guildcount,
+            //upsince: newdata.upsince,
+            ...newdata,
             lastupdated: Date.now()
         })
     }
 
     _add(newdata){
         this.shard.set(newdata.id, {
-            id: newdata.id,
-            status: newdata.status,
-            message: newdata.message,
-            cpu: newdata.cpu,
-            ram: newdata.ram,
-            ping: newdata.ping,
-            guildcount: newdata.guildcount,
-            upsince: newdata.upsince,
+            //id: newdata.id,
+            //status: newdata.status,
+            //message: newdata.message,
+            //cpu: newdata.cpu,
+            //ram: newdata.ram,
+            //ping: newdata.ping,
+            //guildcount: newdata.guildcount,
+            //upsince: newdata.upsince,
+            ...newdata,
             lastupdated: Date.now()
         })
     }
@@ -34,32 +36,38 @@ class FormData {
     shardData(shardID, options = {}){
         if(options.all){
             return [...this.shard.values()]
-        }else{
-            return this.shard.get(shardID)
         }
+        return this.shard.get(shardID)
     }
 
     totalData(){
         const rawdata = [...this.shard.values()];
         let status = 0;
         let cpu = 0;
-        let ram = 0;
+        let ram = { rss:0, heapUsed:0 };
         let ping = 0;
         let guildcount = 0;
+        let membercount = 0;
+        let guildids = [];
         let upsince = 0;
         let lastupdated = 0;
         for(let i = 0; i < rawdata.length; i++){
             status += Number(rawdata[i].status);
             cpu += Number(rawdata[i].cpu);
-            ram += Number(rawdata[i].ram);
+            ram.rss += Number(rawdata[i].ram.rss);
+            ram.heapUsed += Number(rawdata[i].ram.heapUsed);
             ping += Number(rawdata[i].ping);
             guildcount += Number(rawdata[i].guildcount);
             upsince += Number(rawdata[i].upsince)
-            lastupdated += Number(rawdata[i].lastupdated)
+            lastupdated += Number(rawdata[i].lastupdated);
+            guildids.push(...(rawdata[i].guildids||[]));
+            membercount += Number(rawdata[i].membercount);
         }
         if(!rawdata.length) status = 5;
         if(status > 7) status = 9;
-        return {status: status, cpu: Number((cpu/rawdata.length).toFixed(2)), ram: Number((ram/rawdata.length).toFixed(2)), ping: Number((ping/rawdata.length).toFixed(2)), guildcount: guildcount, upsince: Number((upsince/rawdata.length).toFixed(2)),  lastupdated: Number((lastupdated/rawdata.length).toFixed(2))}
+        ram.rss = Number((ram.rss/rawdata.length).toFixed(2));
+        ram.heapUsed = Number((ram.heapUsed/rawdata.length).toFixed(2));
+        return {status: status, cpu: Number((cpu/rawdata.length).toFixed(2)), ram, ping: Number((ping/rawdata.length).toFixed(2)), guildcount, guildids, membercount, upsince: Number((upsince/rawdata.length).toFixed(2)),  lastupdated: Number((lastupdated/rawdata.length).toFixed(2))}
     }
 
     humanize(rawdata){
@@ -76,6 +84,7 @@ class FormData {
         let ram;
         let ping;
         let guildcount;
+        let membercount;
         if(rawdata.status === 0) {
             status = 'Online';
             color = 'green';
@@ -100,12 +109,13 @@ class FormData {
         }
 
         cpu = rawdata.cpu + `%`;
-        ram = rawdata.ram + ` MB`;
+        ram = rawdata.ram.heapUsed + " / " + rawdata.ram.rss + ` MB`;
         ping  = rawdata.ping  + ` ms`;
         guildcount = rawdata.guildcount + ` Guilds`;
+        membercount = rawdata.membercount + ` Members`;
         const upsince = Number(rawdata.upsince)
         const lastupdated = Number(rawdata.lastupdated)
-        return {cpu, ram, ping, guildcount, status, color, upsince, lastupdated,id: rawdata.id, message: rawdata.message}
+        return {cpu, ram, ping, guildcount, membercount, status, color, upsince, lastupdated,id: rawdata.id, message: rawdata.message}
     }
 }
 module.exports = FormData;

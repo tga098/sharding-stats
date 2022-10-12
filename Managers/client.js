@@ -16,13 +16,16 @@ class Client{
   
         for(let i = 0; i < shards.length; i++){
           const body =  {
+             "cluster": this.client.cluster.id,
              "id": shards[i] ? shards[i].id : NaN,
              "status": shards[i]? shards[i].status : 5,
              "cpu": (Math.random()*3).toFixed(2),
              "ram": getRamUsageinMB(),
              "message": (this.shardMessage.get(shards[i]? shards[i].id : NaN) || `No Message Available`),
              "ping": shards[i]? shards[i].ping : NaN,
+             "membercount": (guilds ? guilds.filter(x => x.shardId === shards[i].id).map(x => x.memberCount || x.members?.cache?.size || 0).reduce((a,b) => a + b, 0) : 0),
              "guildcount": (guilds ? guilds.filter(x => x.shardId === shards[i].id).length : 0),
+             "guildids": (guilds ? guilds.filter(x => x.shardId === shards[i].id).map(x => x.id) : []),
              "upsince": this.client.uptime,
            };
            fetch(`${this.config.stats_uri}stats`, {
@@ -81,8 +84,11 @@ class Client{
 }
 module.exports = Client;
 
-
 function getRamUsageinMB(){
-  let mem = process.memoryUsage();
-  return Number((mem.rss / 1024 / 1024).toFixed(2));
+  const { rss, heapUsed } = process.memoryUsage();
+  return {
+    rss: Math.floor(rss / 1024 / 1024), 
+    heapUsed: Math.floor(heapUsed / 1024 / 1024) 
+  }
 }
+

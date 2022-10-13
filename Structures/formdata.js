@@ -58,18 +58,11 @@ class FormData {
         returnData.lastupdated = Math.floor(returnData.lastupdated / rawdata.lastupdated);
         return true;
     }
-    getStatusColor(status) {
-        if (status === 0) return "green";
-        else if (0 < status && status < 5) return "yellow";
-        else if (status === 5) return "red";
-        else if (status > 5) return "grey";
-        else return "black";
-    }
     humanize(rawdata) {
         if (Array.isArray(rawdata)) return rawdata.map(this.humanize);
         const returnData = { 
             status: statuses[rawdata.status],
-            color: this.getStatusColor(rawdata.status),
+            color: getStatusColor(rawdata.status),
             cpu: `${rawdata.cpu}%`, 
             ram: { rss: `${rawdata?.ram?.rss || NaN} MB`, heapUsed: `${rawdata?.ram?.heapUsed || NaN} MB` }, 
             ping: `${rawdata.ping} ms`, 
@@ -84,3 +77,11 @@ class FormData {
     }
 }
 module.exports = FormData;
+
+function getStatusColor(status) {
+    if (status === 0) return "green";
+    else if (0 < status && status < 5) return "yellow";
+    else if (status === 5) return "red";
+    else if (status > 5) return "grey";
+    else return "black";
+}

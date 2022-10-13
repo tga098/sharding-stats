@@ -53,11 +53,15 @@ class FormData {
         const returnData = {
             status: 0, cpu: 0, ram: { rss: 0, heapUsed: 0 }, ping: 0, guildcount: 0, membercount: 0, upsince: 0, lastupdated: 0, guildids: [],  
         }
+        let addedForCluster = [];
         for (const data of rawdata) {
             returnData.status += Number(data.status);
             returnData.cpu += Number(data.cpu);
-            returnData.ram.rss += Number(data.ram.rss);
-            returnData.ram.heapUsed += Number(data.ram.heapUsed);
+            if(!isNaN(data.cluster) && !addedForCluster.includes(String(data.cluster))) {
+                returnData.ram.rss += Number(data.ram.rss);
+                returnData.ram.heapUsed += Number(data.ram.heapUsed);
+                addedForCluster.push(String(data.cluster))
+            }
             returnData.ping += Number(data.ping);
             returnData.guildcount += Number(data.guildcount);
             returnData.upsince += Number(data.upsince)
@@ -71,10 +75,11 @@ class FormData {
     formatReturnRawData(returnData, rawdata) {
         if (!rawdata.length) returnData.status = 5;
         if (returnData.status > 7) returnData.status = 9;
-
-        returnData.ram.rss = Math.floor(returnData.ram.rss / rawdata.length * 100) / 100;
-        returnData.ram.heapUsed = Math.floor(returnData.ram.heapUsed / rawdata.length * 100) / 100;
-        returnData.cpu = Math.floor(returnData.cpu / rawdata.length * 100) / 100;
+        const ramAmount = rawdata.filter(x => !isNaN(x.cluster)).length || rawdata.length;
+        returnData.ram.rss = Math.floor(returnData.ram.rss / ramAmount * 100) / 100;
+        returnData.ram.heapUsed = Math.floor(returnData.ram.heapUsed / ramAmount * 100) / 100;
+        returnData.ping = Math.floor(returnData.ping / ramAmount * 100) / 100;
+        returnData.cpu = Math.floor(returnData.cpu / ramAmount * 100) / 100;
         returnData.upsince = Math.floor(returnData.upsince / rawdata.length);
         returnData.lastupdated = Math.floor(returnData.lastupdated / rawdata.length);
         return true;

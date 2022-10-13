@@ -57,9 +57,10 @@ class Server extends Events {
         let returnData = [];
         if(!shardData?.length || typeof shardData?.[0]?.cluster === "undefined") return returnData;
         for(const element of shardData) {
+            console.log("element.cluster", element.cluster)
             const clusterId = element.cluster ?? shardData?.filter(x => typeof x.cluster !== "undefined").length > 0 ? -1 : undefined;
-            const index = returnData.findIndex(x => x.cluster === clusterId);
-            if(index < 0) returnData.push({ cluster: clusterId, shards: [element] });
+            const index = returnData.findIndex(x => x.cluster === Number(clusterId));
+            if(index < 0) returnData.push({ cluster: Number(clusterId), shards: [element] });
             else returnData[index].shards.push(element);
         }
         returnData = returnData.sort((a,b) => a.cluster - b.cluster);

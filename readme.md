@@ -51,7 +51,7 @@ function receiveStatsDataManually(StatsServer) {
 }
 ```
 
- - [See example Data which gets returned by `StatsServer.getStatsData()`]()
+ - [See example Data which gets returned by `StatsServer.getStatsData()`](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/statsDataReturnData.md)
 
 You can start now start your Dashboard with node server.js.
 

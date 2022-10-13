@@ -1,5 +1,22 @@
+```js
+const data = StatsServer.getStatsData();
+console.log(data);
+```
 
+- Results:
 
+```js
+const resultData = {
+    raw: { // data, for u to format / calculation / stats / find guild / shard etc.
+        shards: [ {...}, {...} ],
+        total: {...}, // all shards summed up to 1 object
+    },
+    pretty: { // string formatted for Dashboard ready
+        shards: [ {...}, {...} ],
+        total: {...}, // all shards summed up to 1 object
+    }
+}
+```
 <details>
 
 <summary>

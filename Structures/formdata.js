@@ -19,11 +19,17 @@ class FormData {
     }
 
     _patch(newdata) {
-        this.shard.set(newdata.id, { ...newdata, lastupdated: Date.now() });
+        const setData = { 
+            ...newdata, 
+            lastupdated: Date.now(),
+            statusText: statuses[newdata.status],
+            color: getStatusColor(newdata.status),
+        };
+        this.shard.set(newdata.id, setData);
         if(newdata.cluster) {
             if(!this.clusters.has(newdata.cluster)) this.clusters.set(newdata.cluster, new Map());
             const cData = this.clusters.get(newdata.cluster);
-            cData.set(newdata.id, { ...newdata, lastupdated: Date.now() });
+            cData.set(newdata.id, setData);
             this.clusters.set(newdata.cluster, cData);
         }
         return true;

@@ -1,7 +1,7 @@
 {
   "name": "sharding-stats",
   "version": "0.5.1",
-  "description": "A cool Dashbaord for showing Live Stats and managing your Discord Bot/Shards",
+  "description": "A cool Dashboard & Manager for showing Live Stats and managing your Discord Bot/Shards",
   "main": "index.js",
   "dependencies": {
     "ejs": "^3.1.8",
@@ -26,6 +26,10 @@
     "live-data",
     "bot-stats",
     "discord-live-stats",
+    "sharding-stats",
+    "sharding",
+    "stats",
+    "clusters",
     "framework"
   ],
   "author": "tga098",

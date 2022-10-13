@@ -1,3 +1,16 @@
+const statuses = {
+    "0": "Online",
+    "1": "Connecting",
+    "2": "Reconnecting",
+    "3": "Idling",
+    "4": "Nearly",
+    "5": "Disconnected",
+    "6": "Waiting for Guilds",
+    "7": "Identifying",
+    "8": "Resuming",
+    "9": "System Disconnected",
+};
+
 class FormData {
     constructor(data) {
         this.shard = new Map();
@@ -16,104 +29,57 @@ class FormData {
 
     totalData() {
         const rawdata = [...this.shard.values()];
-        let status = 0;
-        let cpu = 0;
-        let ram = { rss: 0, heapUsed: 0 };
-        let ping = 0;
-        let guildcount = 0;
-        let membercount = 0;
-        let guildids = [];
-        let upsince = 0;
-        let lastupdated = 0;
-        for (let i = 0; i < rawdata.length; i++) {
-            status += Number(rawdata[i].status);
-            cpu += Number(rawdata[i].cpu);
-            ram.rss += Number(rawdata[i].ram.rss);
-            ram.heapUsed += Number(rawdata[i].ram.heapUsed);
-            ping += Number(rawdata[i].ping);
-            guildcount += Number(rawdata[i].guildcount);
-            upsince += Number(rawdata[i].upsince)
-            lastupdated += Number(rawdata[i].lastupdated);
-            guildids.push(...(rawdata[i].guildids || []));
-            membercount += Number(rawdata[i].membercount);
+        const returnData = {
+            status: 0, cpu: 0, ram: { rss: 0, heapUsed: 0 }, ping: 0, guildcount: 0, membercount: 0, upsince: 0, lastupdated: 0, guildids: [],  
         }
-        if (!rawdata.length) status = 5;
-        if (status > 7) status = 9;
-        ram.rss = Math.floor(ram.rss / rawdata.length * 100) / 100;
-        ram.heapUsed = Math.floor(ram.heapUsed / rawdata.length * 100) / 100;
-        return { 
-            status: status, 
-            cpu: Math.floor(cpu / rawdata.length * 100) / 100, 
-            ram, 
-            ping: Math.floor(ping / rawdata.length * 100) / 100, 
-            guildcount,
-            membercount,
-            upsince: Math.floor(upsince / rawdata.length * 100) / 100, 
-            lastupdated: Math.floor(lastupdated / rawdata.length * 100) / 100,
-            guildids,  
+        for (const data of rawdata) {
+            returnData.status += Number(data.status);
+            returnData.cpu += Number(data.cpu);
+            returnData.ram.rss += Number(data.ram.rss);
+            returnData.ram.heapUsed += Number(data.ram.heapUsed);
+            returnData.ping += Number(data.ping);
+            returnData.guildcount += Number(data.guildcount);
+            returnData.upsince += Number(data.upsince)
+            returnData.lastupdated += Number(data.lastupdated);
+            returnData.guildids.push(...(data.guildids || []));
+            returnData.membercount += Number(data.membercount);
         }
+        return this.formatReturnRawData(returnData, rawdata), returnData;
     }
 
-    humanize(rawdata) {
-        if (Array.isArray(rawdata)) {
-            const result = [];
-            for (let i = 0; i < rawdata.length; i++) {
-                result.push(this.humanize(rawdata[i]))
-            }
-            return result;
-        }
-        let color;
-        let status;
-        let cpu;
-        let ram = {};
-        let ping;
-        let guildcount;
-        let membercount;
-        let guildids = rawdata.guildids;
-        if (rawdata.status === 0) {
-            status = 'Online';
-            color = 'green';
-        }
-        if (0 < rawdata.status && rawdata.status < 5) {
-            if (rawdata.status === 1) status = 'Connecting';
-            if (rawdata.status === 2) status = 'Reconnecting';
-            if (rawdata.status === 3) status = 'Idling';
-            if (rawdata.status === 4) status = 'Nearly';
-            color = 'yellow';
-        }
-        if (rawdata.status === 5) {
-            status = 'Disconnected';
-            color = 'red';
-        }
-        if (rawdata.status > 5) {
-            if (rawdata.status === 6) status = 'Waiting for Guilds';
-            if (rawdata.status === 7) status = 'Identifying';
-            if (rawdata.status === 8) status = 'Resuming';
-            if (rawdata.status === 9) status = 'System Disconnected';
-            color = 'grey';
-        }
+    formatReturnRawData(returnData, rawdata) {
+        if (!rawdata.length) returnData.status = 5;
+        if (returnData.status > 7) returnData.status = 9;
 
-        cpu = `${rawdata.cpu}%`;
-        ram.rss = `${rawdata.ram.rss} MB`;
-        ram.heapUsed = `${rawdata.ram.heapUsed} MB`
-        ping = `${rawdata.ping} ms`;
-        guildcount = `${rawdata.guildcount} Guilds`;
-        membercount = `${rawdata.membercount} Members`;
-        const upsince = Number(rawdata.upsince)
-        const lastupdated = Number(rawdata.lastupdated)
-        return {
-            status, 
-            color, 
-            cpu, 
-            ram, 
-            ping, 
-            guildcount, 
-            membercount, 
-            upsince, 
-            lastupdated, 
-            guildids, 
+        returnData.ram.rss = Math.floor(returnData.ram.rss / rawdata.length * 100) / 100;
+        returnData.ram.heapUsed = Math.floor(returnData.ram.heapUsed / rawdata.length * 100) / 100;
+        returnData.cpu = Math.floor(returnData.cpu / rawdata.length * 100) / 100;
+        returnData.upsince = Math.floor(cpu / rawdata.length);
+        returnData.lastupdated = Math.floor(cpu / rawdata.lastupdated);
+        return true;
+    }
+    getStatusColor(status) {
+        if (status === 0) return "green";
+        else if (0 < status && status < 5) return "yellow";
+        else if (status === 5) return "red";
+        else if (status > 5) return "grey";
+        else return "black";
+    }
+    humanize(rawdata) {
+        if (Array.isArray(rawdata)) return rawdata.map(this.humanize);
+        const returnData = { 
+            status: statuses[rawdata.status],
+            color: this.getStatusColor(rawdata.status),
+            cpu: `${rawdata.cpu}%`, 
+            ram: { rss: `${rawdata?.ram?.rss || NaN} MB`, heapUsed: `${rawdata?.ram?.heapUsed || NaN} MB` }, 
+            ping: `${rawdata.ping} ms`, 
+            guildcount: `${rawdata.guildcount} Guilds`,
+            membercount: `${rawdata.membercount} Members`, 
+            upsince: Number(rawdata.upsince), 
+            lastupdated: Number(rawdata.lastupdated), 
+            guildids: rawdata.guildids, 
             id: rawdata.id,
-            message: rawdata.message
+            message: rawdata.message,
         }
     }
 }

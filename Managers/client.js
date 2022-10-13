@@ -31,17 +31,20 @@ class Client {
                 cluster: 0, // only gets added, if you have clustering ;)
             },
             */
-            const body = {
+           const ram = this.getRamUsageinMB();
+           const cpu = await this.receiveCPUUsage();
+           const upsince = this.client.uptime;
+           const message = (this.shardMessage.get(shards[i] ? shards[i].id : NaN) || `No Message Available`);
+           const body = {
                 id: shards[i] ? shards[i].id : NaN,
                 status: shards[i] ? shards[i].status : 5,
-                cpu: await this.receiveCPUUsage(),
-                ram: this.getRamUsageinMB(),
-                message: (this.shardMessage.get(shards[i] ? shards[i].id : NaN) || `No Message Available`),
+                cpu, ram,
+                message,
                 ping: shards[i] ? shards[i].ping : NaN,
                 membercount: filteredGuilds.map(x => x.memberCount || x.members?.cache?.size || 0).reduce((a, b) => a + b, 0),
                 guildcount: filteredGuilds.filter(x => x.shardId === shards[i].id).filter(Boolean).length,
                 guildids: filteredGuilds.filter(x => x.shardId === shards[i].id).map(x => x?.id).filter(Boolean),
-                upsince: this.client.uptime,
+                upsince,
             };
             if (typeof this.client?.cluster?.id !== "undefined") body.cluster = this.client.cluster.id;
             

@@ -11,7 +11,7 @@ class Client {
         this._autopost();
     }
 
-    post() {
+    async post() {
         const shards = [...this.client.ws.shards.values()]
         const guilds = [...this.client.guilds.cache.values()]
 

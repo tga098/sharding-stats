@@ -54,8 +54,8 @@ class FormData {
         returnData.ram.rss = Math.floor(returnData.ram.rss / rawdata.length * 100) / 100;
         returnData.ram.heapUsed = Math.floor(returnData.ram.heapUsed / rawdata.length * 100) / 100;
         returnData.cpu = Math.floor(returnData.cpu / rawdata.length * 100) / 100;
-        returnData.upsince = Math.floor(cpu / rawdata.length);
-        returnData.lastupdated = Math.floor(cpu / rawdata.lastupdated);
+        returnData.upsince = Math.floor(returnData.upsince / rawdata.length);
+        returnData.lastupdated = Math.floor(returnData.lastupdated / rawdata.lastupdated);
         return true;
     }
     getStatusColor(status) {

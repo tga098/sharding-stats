@@ -75,6 +75,8 @@ class FormData {
     formatReturnRawData(returnData, rawdata) {
         if (!rawdata.length) returnData.status = 5;
         if (returnData.status > 7) returnData.status = 9;
+        returnData.ram.rss = Math.floor(returnData.ram.rss * 100) / 100;
+        returnData.ram.heapUsed = Math.floor(returnData.ram.heapUsed * 100) / 100;
         returnData.ping = Math.floor(returnData.ping / rawdata.length * 100) / 100;
         returnData.cpu = Math.floor(returnData.cpu / rawdata.length * 100) / 100;
         returnData.upsince = Math.floor(returnData.upsince / rawdata.length);

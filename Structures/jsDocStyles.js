@@ -65,3 +65,5 @@
  * @prop {rawObject} raw
  * @prop {prettyObject} pretty
  */
+
+ module.exports.unused = {};

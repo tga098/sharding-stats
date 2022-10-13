@@ -30,7 +30,7 @@ class Server extends Events {
     }
     /**
      * 
-     * @returns {require("../Structures/jsDocStyles.js").StatsDataReturnData}
+     * @returns {import("../Structures/jsDocStyles.js").StatsDataReturnData}
      */
     getStatsData() {
         const shardData = FormData.shardData(0, { all: true });

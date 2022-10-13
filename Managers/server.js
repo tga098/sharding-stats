@@ -14,6 +14,8 @@ class Server extends Events {
     constructor(app, config = {}) {
         super()
         this.app = app;
+        this.totalClusters = 0;
+        this.totalShards = 0;
         this.config = config;
         if (typeof config === "object" && typeof config.managerApi === "string") {
             this.managerApi = config.managerApi;
@@ -55,7 +57,7 @@ class Server extends Events {
         let returnData = [];
         if(!shardData?.length || typeof shardData?.[0]?.cluster === "undefined") return returnData;
         for(const element of shardData) {
-            const clusterId = element.cluster;
+            const clusterId = element.cluster || shardData?.filter(x => typeof x.cluster !== "undefined").length > 0 ? -1 : undefined;
             const index = returnData.findIndex(x => x.cluster === clusterId);
             if(index < 0) returnData.push({ cluster: clusterId, shards: [element] });
             else returnData[index].shards.push(element);
@@ -103,6 +105,11 @@ class Server extends Events {
                 const authProvided = req.headers.authorization
                 const authKey = Buffer.from(this.config.authorizationkey).toString('base64');
                 if (authKey !== authProvided) return res.status(404).end();
+                
+                if(req.body?.totalClusters && !isNaN(req.body.totalClusters)) this.totalClusters = Number(req.body.totalClusters);
+                if(req.body?.totalShards && !isNaN(req.body.totalShards)) this.totalShards = Number(req.body.totalShards);
+                if(this.totalClusters || this.totalShards) checkShards(this.totalShards, this.totalClusters)
+
                 const rawdata = new Schema(req.body).toObject();
                 FormData._patch(rawdata);
                 setTimeout(() => {

@@ -9,19 +9,34 @@ const statuses = {
     "7": "Identifying",
     "8": "Resuming",
     "9": "System Disconnected",
+    "10": "No Data",
 };
 
 class FormData {
     constructor(data) {
         this.shard = new Map();
-    }
-    _patch(newdata) {
-        this.shard.set(newdata.id, {
-            ...newdata,
-            lastupdated: Date.now()
-        })
+        this.clusters = new Map();
     }
 
+    _patch(newdata) {
+        this.shard.set(newdata.id, { ...newdata, lastupdated: Date.now() });
+        if(newdata.cluster) {
+            if(!this.clusters.has(newdata.cluster)) this.clusters.set(newdata.cluster, new Map());
+            const cData = this.clusters.get(newdata.cluster);
+            cData.set(newdata.id, { ...newdata, lastupdated: Date.now() });
+            this.clusters.set(newdata.cluster, cData);
+        }
+        return true;
+    }
+
+    checkShards(totalShards, totalClusters) {
+        if(!isNaN(totalShards) && totalShards > 0) {
+            for(let id = 0; id < totalShards; id++) {
+                if(this.shard.has(id)) continue;
+                this.shard.set(id, { id, status: 10 }) 
+            }
+        }
+    }
     shardData(shardId, options = {}) {
         if (options.all) return [...this.shard.values()]
         return this.shard.get(shardId)

@@ -55,7 +55,7 @@ class FormData {
         returnData.ram.heapUsed = Math.floor(returnData.ram.heapUsed / rawdata.length * 100) / 100;
         returnData.cpu = Math.floor(returnData.cpu / rawdata.length * 100) / 100;
         returnData.upsince = Math.floor(returnData.upsince / rawdata.length);
-        returnData.lastupdated = Math.floor(returnData.lastupdated / rawdata.lastupdated);
+        returnData.lastupdated = Math.floor(returnData.lastupdated / rawdata.length);
         return true;
     }
     humanize(rawdata) {

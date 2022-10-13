@@ -12,6 +12,8 @@
  */
 /**
  * @typedef {Object} rawShardsData
+ * @prop {number} id 
+ * @prop {number} [cluster] 
  * @prop {number} status 
  * @prop {number} cpu
  * @prop { { rss:number, heapUsed:number } } ram
@@ -24,26 +26,32 @@
  */
 /**
  * @typedef {Object} prettyTotalData
- * @prop {number} status 
- * @prop {number} cpu
- * @prop { { rss:number, heapUsed:number } } ram
- * @prop {number} ping
- * @prop {number} guildcount
+ * @prop {string} status 
+ * @prop {string} color 
+ * @prop {string} cpu
+ * @prop { { rss:string, heapUsed:string } } ram
+ * @prop {string} ping
+ * @prop {string} guildcount
  * @prop {string[]} guildids
- * @prop {number} membercount
+ * @prop {string} membercount
  * @prop {number} upsince
  * @prop {number} lastupdated
+ * @prop {number} id 
+ * @prop {string} message 
  */
 
 /**
  * @typedef {Object} prettyShardsData
- * @prop {number} status 
- * @prop {number} cpu
- * @prop { { rss:number, heapUsed:number } } ram
- * @prop {number} ping
- * @prop {number} guildcount
+ * @prop {number} id 
+ * @prop {number} [cluster] 
+ * @prop {string} color 
+ * @prop {string} status 
+ * @prop {string} cpu
+ * @prop { { rss:string, heapUsed:string } } ram
+ * @prop {string} ping
+ * @prop {string} guildcount
  * @prop {string[]} guildids
- * @prop {number} membercount
+ * @prop {string} membercount
  * @prop {number} upsince
  * @prop {number} lastupdated
  */

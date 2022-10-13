@@ -45,6 +45,28 @@ class Server extends Events {
             }
         }
     }
+    /**
+     * @typedef {import("../Structures/jsDocStyles.js").rawShardsData} rawShardsData
+     * @returns { {cluster:number, shards: rawShardsData[] }[]}
+     */
+    chunkShardsToClusterArrays() {
+        /** @type {import("../Structures/jsDocStyles.js").rawShardsData} */
+        const shardData = FormData.shardData(0, { all: true });
+        let returnData = [];
+        if(!shardData?.length || typeof shardData?.[0]?.cluster === "undefined") return returnData;
+        for(const element of shardData) {
+            const clusterId = element.cluster;
+            const index = returnData.findIndex(x => x.cluster === clusterId);
+            if(index < 0) returnData.push({ cluster: clusterId, shards: [element] });
+            else returnData[index].shards.push(element);
+        }
+        returnData = returnData.sort((a,b) => a.cluster - b.cluster);
+        returnData.map(x => {
+            x.shards = x.shards.sort((a,b) => a.id - b.id)
+            return x;
+        })
+        return returnData;
+    }
     _applytoApp() {
         this.app.use(session({
             store: new MemoryStore({ checkPeriod: 86400000 }),

@@ -62,7 +62,14 @@ class FormData {
             }
             return result;
         }
-        let color, status, cpu, ram = {}; ping, guildcount, membercount, guildIds = rawdata.guildIds;
+        let color;
+        let status;
+        let cpu;
+        let ram = {};
+        let ping;
+        let guildcount;
+        let membercount;
+        let guildIds = rawdata.guildIds;
         if (rawdata.status === 0) {
             status = 'Online';
             color = 'green';

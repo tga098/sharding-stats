@@ -47,10 +47,10 @@ class FormData {
             ram, 
             ping: Math.floor(ping / rawdata.length * 100) / 100, 
             guildcount,
-            guildids, 
-            membercount, 
+            membercount,
             upsince: Math.floor(upsince / rawdata.length * 100) / 100, 
-            lastupdated: Math.floor(lastupdated / rawdata.length * 100) / 100
+            lastupdated: Math.floor(lastupdated / rawdata.length * 100) / 100,
+            guildids,  
         }
     }
 
@@ -69,7 +69,7 @@ class FormData {
         let ping;
         let guildcount;
         let membercount;
-        let guildIds = rawdata.guildIds;
+        let guildids = rawdata.guildids;
         if (rawdata.status === 0) {
             status = 'Online';
             color = 'green';
@@ -101,7 +101,20 @@ class FormData {
         membercount = `${rawdata.membercount} Members`;
         const upsince = Number(rawdata.upsince)
         const lastupdated = Number(rawdata.lastupdated)
-        return { cpu, ram, ping, guildcount, membercount, status, color, upsince, lastupdated, id: rawdata.id, message: rawdata.message }
+        return {
+            status, 
+            color, 
+            cpu, 
+            ram, 
+            ping, 
+            guildcount, 
+            membercount, 
+            upsince, 
+            lastupdated, 
+            guildids, 
+            id: rawdata.id,
+            message: rawdata.message
+        }
     }
 }
 module.exports = FormData;

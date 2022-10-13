@@ -47,15 +47,15 @@ class Client {
                 upsince,
             };
             if (typeof this.client?.cluster?.id !== "undefined") body.cluster = this.client.cluster.id;
-            
             fetch(`${this.config.stats_uri}stats`, {
-                method: 'post',
-                body: JSON.stringify(body),
+                method: 'POST',
                 headers: {
                     'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            }).then(res => res.json()).then((m) => this._handleMessage(m)).catch((e) => console.log(new Error(e)))
+                body: JSON.stringify(body),
+            }).then(res => res.json()).then((m) => this._handleMessage(m)).catch((e) => console.error(new Error(e)))
         }
     }
     async receiveCPUUsage() {
@@ -74,12 +74,13 @@ class Client {
     }    
     deleteCachedShardStatus() {
         return fetch(`${this.config.stats_uri}deleteShards`, {
-            method: 'post',
-            body: JSON.stringify({ kill: true, shards: 'all' }),
+            method: 'POST',
             headers: {
                 'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
+                'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
+            body: JSON.stringify({ kill: true, shards: 'all' }),
         }).catch((e) => e)
     }
 
@@ -113,6 +114,8 @@ class Client {
         if (!this.config.authorizationkey) throw new Error('Pls provide your choosen Authorization Key for verifying Requests.');
         if (this.config.postinterval && isNaN(this.config.postinterval)) throw new Error('The PostInterval is not a valid Time. Provide the Interval in milliseconds');
         if (!this.config.postinterval) this.config.postinterval = 5000;
+        if (!this.config.stats_uri || typeof this.config.stats_uri !== "string") throw new Error("Pls provide your base stats_uri, e.g: http://localhost:3333, or http:192.168.0.1:3333");
+        if(!this.config.stats_uri?.endsWith?.("/")) this.config.stats_uri += "/";
     }
 }
 module.exports = Client;

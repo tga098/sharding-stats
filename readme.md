@@ -47,9 +47,11 @@ app.listen(3000, () => {
 });
 
 function receiveStatsDataManually(StatsServer) {
-    return StatsServer.getStatsData();
+    return StatsServer.getStatsData(); // { raw, pretty }; // (raw|pretty).(shards|total);
 }
 ```
+
+ - [See example Data which gets returned by `StatsServer.getStatsData()`]()
 
 You can start now start your Dashboard with node server.js.
 

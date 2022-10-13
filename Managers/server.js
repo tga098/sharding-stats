@@ -1,4 +1,3 @@
-const bodyParser = require("body-parser");
 const Strategy = require("passport-discord");
 const passport = require("passport");
 const Events = require('events');
@@ -33,16 +32,25 @@ class Server extends Events {
         const shardData = FormData.shardData(0, { all: true });
         const totalData = FormData.totalData();
         return {
-            shardData,
-            totalData,
-            shards: FormData.humanize(shardData),
-            total: FormData.humanize(totalData),
+            raw: {
+                shards: shardData,
+                total: totalData
+            },
+            pretty: {
+                shards: FormData.humanize(shardData),
+                total: FormData.humanize(totalData),
+            }
         }
     }
     _applytoApp() {
+        this.app.use(session({
+            store: new MemoryStore({ checkPeriod: 86400000 }),
+            secret: `#@%#&^$^$%@$^$&%#$%@#$%$^%&$%^#$%@#$%#E%#%@$FEErfgr3g#%GT%536c53cc6%5%tv%4y4hrgrggrgrgf4nas`,
+            resave: false,
+            saveUninitialized: false
+        }))
+
         this.app.use(express.static(path.join(__dirname, `../Frontend`)));
-        this.app.use(bodyParser.urlencoded({ extended: false }));
-        this.app.use(bodyParser.json());
         this.app.engine('html', require('ejs').renderFile);
         this.app.set('view engine', 'ejs');
         this.app.set('views', path.join(__dirname, `../Frontend`));
@@ -56,20 +64,14 @@ class Server extends Events {
         }, (accessToken, refreshToken, profile, done) => {
             process.nextTick(() => done(null, profile))
         }))
-        this.app.use(session({
-            store: new MemoryStore({ checkPeriod: 86400000 }),
-            secret: `#@%#&^$^$%@$^$&%#$%@#$%$^%&$%^#$%@#$%#E%#%@$FEErfgr3g#%GT%536c53cc6%5%tv%4y4hrgrggrgrgf4nas`,
-            resave: false,
-            saveUninitialized: false
-        }))
+
         this.app.use(passport.initialize());
         this.app.use(passport.session());
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({ extended: true }));
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: true }));
     }
     _buildApi() {
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: true }));
+
         this.app.post('/stats', (req, res) => {
             try {
                 if (!req.headers.authorization) return res.status(404).end()

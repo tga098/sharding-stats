@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
-class Client{
-    constructor(client, config){
+const os = require('node-os-utils');
+class Client {
+    constructor(client, config) {
         this.client = client;
         this.config = config;
         this.shardMessage = new Map();
@@ -9,59 +10,88 @@ class Client{
         this._attachEvents();
         this._autopost();
     }
-    
-    post(){
+
+    post() {
         const shards = [...this.client.ws.shards.values()]
         const guilds = [...this.client.guilds.cache.values()]
-  
-        for(let i = 0; i < shards.length; i++){
-          const body =  {
-             "cluster": this.client.cluster.id,
-             "id": shards[i] ? shards[i].id : NaN,
-             "status": shards[i]? shards[i].status : 5,
-             "cpu": (Math.random()*3).toFixed(2),
-             "ram": getRamUsageinMB(),
-             "message": (this.shardMessage.get(shards[i]? shards[i].id : NaN) || `No Message Available`),
-             "ping": shards[i]? shards[i].ping : NaN,
-             "membercount": (guilds ? guilds.filter(x => x.shardId === shards[i].id).map(x => x.memberCount || x.members?.cache?.size || 0).reduce((a,b) => a + b, 0) : 0),
-             "guildcount": (guilds ? guilds.filter(x => x.shardId === shards[i].id).length : 0),
-             "guildids": (guilds ? guilds.filter(x => x.shardId === shards[i].id).map(x => x.id) : []),
-             "upsince": this.client.uptime,
-           };
-           fetch(`${this.config.stats_uri}stats`, {
-             method: 'post',
-             body:    JSON.stringify(body),
-             headers: { 
-                 'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
-                 'Content-Type': 'application/json' 
-             },
-           }).then(res => res.json()).then((m) => this._handleMessage(m)).catch((e) => console.log(new Error(e)))
+
+        for (let i = 0; i < shards.length; i++) {
+            const filteredGuilds = guilds ? guilds.filter(x => x.shardId === shards[i].id) : [];
+            /* // example data
+            {
+                id: 0,
+                status: 0,
+                ping: 10,
+                cpu: 3.45,
+                ram: { rss: 385, heapUsed: 185 }
+                membercount: 30446,
+                guildcount: 444,
+                guildids: [ '907888291725053965',  '957913119861129217',  '868774602451607572', '...' ],
+                upsince: 8879483,
+                cluster: 0, // only gets added, if you have clustering ;)
+            },
+            */
+            const body = {
+                id: shards[i] ? shards[i].id : NaN,
+                status: shards[i] ? shards[i].status : 5,
+                cpu: await this.receiveCPUUsage(),
+                ram: this.getRamUsageinMB(),
+                message: (this.shardMessage.get(shards[i] ? shards[i].id : NaN) || `No Message Available`),
+                ping: shards[i] ? shards[i].ping : NaN,
+                membercount: filteredGuilds.map(x => x.memberCount || x.members?.cache?.size || 0).reduce((a, b) => a + b, 0),
+                guildcount: filteredGuilds.filter(x => x.shardId === shards[i].id).filter(Boolean).length,
+                guildids: filteredGuilds.filter(x => x.shardId === shards[i].id).map(x => x?.id).filter(Boolean),
+                upsince: this.client.uptime,
+            };
+            if (typeof this.client?.cluster?.id !== "undefined") body.cluster = this.client.cluster.id;
+            
+            fetch(`${this.config.stats_uri}stats`, {
+                method: 'post',
+                body: JSON.stringify(body),
+                headers: {
+                    'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
+                    'Content-Type': 'application/json'
+                },
+            }).then(res => res.json()).then((m) => this._handleMessage(m)).catch((e) => console.log(new Error(e)))
         }
     }
-
-    deleteCachedShardStatus(){
-       return   fetch(`${this.config.stats_uri}deleteShards`, {
+    async receiveCPUUsage() {
+        try {
+            return await os.cpu.usage(100);
+        } catch {
+            return 0
+        }
+    }
+    getRamUsageinMB() {
+        const { rss, heapUsed } = process.memoryUsage();
+        return {
+            rss: Math.floor(rss / 1024 / 1024 * 100) / 100,
+            heapUsed: Math.floor(heapUsed / 1024 / 1024 * 100) / 100
+        }
+    }    
+    deleteCachedShardStatus() {
+        return fetch(`${this.config.stats_uri}deleteShards`, {
             method: 'post',
-            body:  JSON.stringify({kill: true, shards: 'all'}),
-            headers: { 
+            body: JSON.stringify({ kill: true, shards: 'all' }),
+            headers: {
                 'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
-          }).catch((e) => e)
+        }).catch((e) => e)
     }
 
-    _autopost(){
-        setInterval(()=> {
-              this.post()          
+    _autopost() {
+        setInterval(() => {
+            this.post()
         }, this.config.postinterval)
     }
 
-    _attachEvents(){
+    _attachEvents() {
         this.client.on('debug', (message) => {
-            if(message.includes(`Shard`)){
+            if (message.includes(`Shard`)) {
                 const shards = [...this.client.ws.shards.values()]
-                for(let i = 0; i < shards.length; i++){
-                    if(message.includes(`[WS => Shard ${shards[i].id}]`)){
+                for (let i = 0; i < shards.length; i++) {
+                    if (message.includes(`[WS => Shard ${shards[i].id}]`)) {
                         this.shardMessage.set(shards[i].id, message.replace(`[WS => Shard ${shards[i].id}]`, ''))
                     }
                 }
@@ -69,26 +99,18 @@ class Client{
         })
     }
 
-    _handleMessage(message){
-        if(!message.kill) return;
-        if(message.shard === undefined) return;
-        if(this.client.ws.shards.has(message.shard)) return this.client.ws.shards.get(message.shard).destroy();
+    _handleMessage(message) {
+        if (!message.kill) return;
+        if (message.shard === undefined) return;
+        if (this.client.ws.shards.has(message.shard)) return this.client.ws.shards.get(message.shard).destroy();
         return false;
     }
 
-    _validateOptions(){
-        if(!this.config.authorizationkey) throw new Error('Pls provide your choosen Authorization Key for verifying Requests.');
-        if(this.config.postinterval && isNaN(this.config.postinterval)) throw new Error('The PostInterval is not a valid Time. Provide the Interval in milliseconds');
-        if(!this.config.postinterval) this.config.postinterval = 1000;
+    _validateOptions() {
+        if (!this.config.authorizationkey) throw new Error('Pls provide your choosen Authorization Key for verifying Requests.');
+        if (this.config.postinterval && isNaN(this.config.postinterval)) throw new Error('The PostInterval is not a valid Time. Provide the Interval in milliseconds');
+        if (!this.config.postinterval) this.config.postinterval = 5000;
     }
 }
 module.exports = Client;
-
-function getRamUsageinMB(){
-  const { rss, heapUsed } = process.memoryUsage();
-  return {
-    rss: Math.floor(rss / 1024 / 1024), 
-    heapUsed: Math.floor(heapUsed / 1024 / 1024) 
-  }
-}
 

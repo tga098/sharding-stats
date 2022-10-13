@@ -28,6 +28,10 @@ class Server extends Events {
         }
         this.getStatsData = this.getStatsData.bind(this);
     }
+    /**
+     * 
+     * @returns {require("../Structures/jsDocStyles.js").StatsDataReturnData}
+     */
     getStatsData() {
         const shardData = FormData.shardData(0, { all: true });
         const totalData = FormData.totalData();

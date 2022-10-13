@@ -47,7 +47,6 @@ class Client {
                 upsince,
             };
             if (typeof this.client?.cluster?.id !== "undefined") body.cluster = `${this.client.cluster.id}`;
-            console.log(body.cluster)
             fetch(`${this.config.stats_uri}stats`, {
                 method: 'POST',
                 headers: {

@@ -27,6 +27,7 @@ class Server extends Events {
             this._applytoApp();
             this._buildRoute();
         }
+        this.getStatsData = this.getStatsData.bind(this);
     }
     getStatsData() {
         const shardData = FormData.shardData(0, { all: true });

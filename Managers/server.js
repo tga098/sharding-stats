@@ -36,7 +36,7 @@ class Server extends Events {
         passport.use(new Strategy({
             clientID: this.config.bot.client_id,
             clientSecret: this.config.bot.client_secret,
-            callbackURL: this.config.bot.redirect_url,
+            callbackURL: this.config.redirect_url,
             scope: this.config.scope
         },
 

@@ -66,4 +66,4 @@
  * @prop {prettyObject} pretty
  */
 
- module.exports.unused = {};
+module.exports.unused = {};

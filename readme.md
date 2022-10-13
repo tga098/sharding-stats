@@ -46,7 +46,7 @@ app.listen(3000, () => {
   console.log("Application started, listening on port 3000!");
 });
 
-function receiveStatsDataManually(StatsServer) {
+function receiveStatsDataManually() {
     return StatsServer.getStatsData(); // { raw, pretty }; // (raw|pretty).(shards|total);
 }
 ```

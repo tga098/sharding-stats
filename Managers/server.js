@@ -26,10 +26,9 @@ class Server extends Events {
             this._applytoApp();
             this._buildRoute();
         }
-        this.getStatsData = this.getStatsData.bind(this);
     }
+    
     /**
-     * 
      * @returns {import("../Structures/jsDocStyles.js").StatsDataReturnData}
      */
     getStatsData() {

@@ -12,17 +12,32 @@ const session = require("express-session");
 const MemoryStore = require("memorystore")(session);
 
 class Server extends Events {
-    constructor(app, config) {
+    constructor(app, config = {}) {
         super()
         this.app = app;
         this.config = config;
+        if (typeof config === "object" && typeof config.managerApi === "string") {
+            this.managerApi = config.managerApi;
+        }
         this.killShard = new Map();
         this.code = new Code(config);
         this._validateOptions();
-        this._applytoApp();
-        this._buildRoute();
+        this._buildApi();
+        if(!this.config?.selfHost) {
+            this._applytoApp();
+            this._buildRoute();
+        }
     }
-
+    getStatsData() {
+        const shardData = FormData.shardData(0, { all: true });
+        const totalData = FormData.totalData();
+        return {
+            shardData,
+            totalData,
+            shards: FormData.humanize(shardData),
+            total: FormData.humanize(totalData),
+        }
+    }
     _applytoApp() {
         this.app.use(express.static(path.join(__dirname, `../Frontend`)));
         this.app.use(bodyParser.urlencoded({ extended: false }));
@@ -37,14 +52,11 @@ class Server extends Events {
             clientSecret: this.config.bot.client_secret,
             callbackURL: "http://localhost:3000/callback",
             scope: this.config.scope
-        },
-
-            (accessToken, refreshToken, profile, done) => {
-                process.nextTick(() => done(null, profile))
-            }
-        ))
+        }, (accessToken, refreshToken, profile, done) => {
+            process.nextTick(() => done(null, profile))
+        }))
         this.app.use(session({
-            store: new MemoryStore({checkPeriod: 86400000 }),
+            store: new MemoryStore({ checkPeriod: 86400000 }),
             secret: `#@%#&^$^$%@$^$&%#$%@#$%$^%&$%^#$%@#$%#E%#%@$FEErfgr3g#%GT%536c53cc6%5%tv%4y4hrgrggrgrgf4nas`,
             resave: false,
             saveUninitialized: false
@@ -52,17 +64,37 @@ class Server extends Events {
         this.app.use(passport.initialize());
         this.app.use(passport.session());
         this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({
-            extended: true
-        }));
+        this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(express.json());
-        this.app.use(express.urlencoded({
-            extended: true
-        }));
-        
+        this.app.use(express.urlencoded({ extended: true }));
+    }
+    _buildApi() {
+        this.app.post('/stats', (req, res) => {
+            try {
+                if (!req.headers.authorization) return res.status(404).end()
+                const authProvided = req.headers.authorization
+                const authKey = Buffer.from(this.config.authorizationkey).toString('base64');
+                if (authKey !== authProvided) return res.status(404).end();
+                const rawdata = new Schema(req.body).toObject();
+                FormData._patch(rawdata);
+                setTimeout(() => {
+                    this._checkIfShardAlive(rawdata.id)
+                }, this.config.markShardsDeadafter)
+
+                if (this.killShard.has(rawdata.id)) {
+                    this.killShard.delete(rawdata.id)
+                    res.send({ kill: true, shard: rawdata.id })
+                } else {
+                    res.send({ status: `Success` })
+                }
+                return res.end();
+            } catch (error) {
+                this.emit('error', error)
+            }
+        })
     }
     _buildRoute() {
-       // this.app.get(`/${(this.config.login_path || '')}`, (req, res) => {
+        // this.app.get(`/${(this.config.login_path || '')}`, (req, res) => {
         //     res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${this.config.bot.client_id}&redirect_uri=${this.config.redirect_uri}&response_type=code&scope=${this.config.scope.join('+')}`)
         // })
         // this.app.get('/login', async (req, res) => {
@@ -93,39 +125,36 @@ class Server extends Events {
         // })
 
         const checkAuth = (req, res, next) => {
-            if(req.isAuthenticated()) return next();
+            if (req.isAuthenticated()) return next();
             req.session.backURL = req.url;
             res.redirect("/login");
-        }    
+        }
 
-       this.app.get("/login", (req, res, next) => {
-            if(req.session.backURL){
+        this.app.get("/login", (req, res, next) => {
+            if (req.session.backURL) {
                 req.session.backURL = req.session.backURL
-            } else if(req.headers.referer){
+            } else if (req.headers.referer) {
                 const parsed = url.parse(req.headers.referer);
-                if(parsed.hostname == app.locals.domain){
+                if (parsed.hostname == app.locals.domain) {
                     req.session.backURL = parsed.path
                 }
             } else {
                 req.session.backURL = "/"
             }
             next();
-            }, passport.authenticate("discord", { prompt: "none"})
-        );
+        }, passport.authenticate("discord", { prompt: "none" }));
+
         this.app.get(`/callback`, passport.authenticate(`discord`, { failureRedirect: "/" }), async (req, res) => {
-            let banned = false // req.user.id
-            if(banned) {
-                    req.session.destroy(() => {
+            if (this.config.bannedUsers?.includes?.(req?.user?.id)) {
+                req.session.destroy(() => {
                     res.json({ login: false, message: `You have been blocked from the Dashboard.`, logout: true })
                     req.logout();
                 });
             } else {
-            //  client.channels.fetch(`947175648768688184`).send(`${req.user.tag} Logged in`)
+                //  client.channels.fetch(`947175648768688184`).send(`${req.user.tag} Logged in`)
                 res.redirect(`/`)
             }
-        });
-
-    
+        }); 
 
         this.app.get('/', checkAuth, async (req, res) => {
             const shardData = FormData.shardData(0, { all: true })
@@ -134,7 +163,7 @@ class Server extends Events {
                 shards: FormData.humanize(shardData),
                 total: FormData.humanize(totalData),
                 posts: FormData.humanize(FormData.shardData(0, { all: true })),
-                config: this.config, 
+                config: this.config,
                 data: FormData.humanize(FormData.totalData()),
                 user: req.user
             })
@@ -143,20 +172,18 @@ class Server extends Events {
         this.app.get('/stats', checkAuth, async (req, res) => {
             const shardData = FormData.shardData(0, { all: true })
             const totalData = FormData.totalData()
-            if(!this.config.owners.includes(req.user.id)){
+            if (!this.config.owners.includes(req.user.id)) {
                 return res.send(`ACCESS DENIED`)
             }
             res.render('starter', {
                 shards: FormData.humanize(shardData),
                 total: FormData.humanize(totalData),
                 posts: FormData.humanize(FormData.shardData(0, { all: true })),
-                config: this.config, 
+                config: this.config,
                 data: FormData.humanize(FormData.totalData()),
                 user: req.user
             })
-           
         })
-
         this.app.get("/status", (req, res) => {
             try {
                 const shardData = FormData.shardData(0, { all: true })
@@ -167,7 +194,6 @@ class Server extends Events {
                 this.emit('error', error)
             }
         })
-
 
         this.app.get("/api/shard", (req, res) => {
             try {
@@ -184,39 +210,14 @@ class Server extends Events {
         this.app.get("/api/killShard", (req, res) => {
             try {
                 const shardid = req.query.shardid;
-                if(req.user)
-                // if (!req.headers.authorization) return res.status(404).end()
-                // const authProvided = req.headers.authorization
-                // const authKey = Buffer.from(this.config.authorizationkey).toString('base64');
-                // if (authKey !== authProvided) return res.status(404).end();
-                // const code = req.query.code;
-                // if (!this.code.checkSession(code)) return res.end(`AUTHENTICATION FAILED | RELOAD & LOGIN AGAIN`);
-                this.killShard.set(Number(shardid), true)
-                return res.end();
-            } catch (error) {
-                this.emit('error', error)
-            }
-        })
-
-
-        this.app.post('/stats', (req, res) => {
-            try {
-                if (!req.headers.authorization) return res.status(404).end()
-                const authProvided = req.headers.authorization
-                const authKey = Buffer.from(this.config.authorizationkey).toString('base64');
-                if (authKey !== authProvided) return res.status(404).end();
-                const rawdata = new Schema(req.body).toObject();
-                FormData._patch(rawdata);
-                setTimeout(() => {
-                    this._checkIfShardAlive(rawdata.id)
-                }, this.config.markShardasDeadafter)
-
-                if (this.killShard.has(rawdata.id)) {
-                    this.killShard.delete(rawdata.id)
-                    res.send({ kill: true, shard: rawdata.id })
-                } else {
-                    res.send({ status: `Success` })
-                }
+                if (req.user)
+                    // if (!req.headers.authorization) return res.status(404).end()
+                    // const authProvided = req.headers.authorization
+                    // const authKey = Buffer.from(this.config.authorizationkey).toString('base64');
+                    // if (authKey !== authProvided) return res.status(404).end();
+                    // const code = req.query.code;
+                    // if (!this.code.checkSession(code)) return res.end(`AUTHENTICATION FAILED | RELOAD & LOGIN AGAIN`);
+                    this.killShard.set(Number(shardid), true)
                 return res.end();
             } catch (error) {
                 this.emit('error', error)
@@ -236,7 +237,7 @@ class Server extends Events {
     _checkIfShardAlive(shardID) {
         const data = FormData.shardData(Number(shardID));
         if (!data) return;
-        const diff = Number(data.lastupdated + this.config.markShardasDeadafter - 1000);
+        const diff = Number(data.lastupdated + this.config.markShardsDeadafter - 1000);
         if (diff > Date.now()) return;
         data.upsince = 0;
         data.status = 5;
@@ -251,17 +252,14 @@ class Server extends Events {
         if (!this.config.bot.client_secret) throw new Error(`Missing Parameter: client_secret has not been provided`)
 
         if (!this.config.stats_uri) throw new Error(`Missing Parameter: stats_uri has not been provided`)
-    //    if (!this.config.redirect_uri) throw new Error(`Missing Parameter: redirect_uri has not been provided`)
+        //    if (!this.config.redirect_uri) throw new Error(`Missing Parameter: redirect_uri has not been provided`)
         if (!this.config.owners) throw new Error(`Missing Parameter: owners has not been provided`);
-
         if (!this.config.scope) this.config.scope = ['identify'];
-
         if (!this.config.postinterval) this.config.postinterval = 2500;
-        if (!this.config.markShardasDeadafter) this.config.markShardasDeadafter = 10000;
+        if (!this.config.markShardsDeadafter) this.config.markShardsDeadafter = 10000;
         if (!this.config.loginExpire) this.config.loginExpire = 60000 * 15;
         if (!this.config.login_path) this.config.login_path = '';
-
-        if (this.config.postinterval > this.config.markShardasDeadafter) throw new Error(`Post Interval can not be bigger than the "maskShardasDeadafter" Argument`)
+        if (this.config.postinterval > this.config.markShardsDeadafter) throw new Error(`Post Interval can not be bigger than the "maskShardasDeadafter" Argument`)
     }
 }
 module.exports = Server;

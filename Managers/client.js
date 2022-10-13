@@ -46,7 +46,8 @@ class Client {
                 guildids: filteredGuilds.filter(x => x.shardId === shards[i].id).map(x => x?.id).filter(Boolean),
                 upsince,
             };
-            if (typeof this.client?.cluster?.id !== "undefined") body.cluster = this.client.cluster.id;
+            if (typeof this.client?.cluster?.id !== "undefined") body.cluster = `${this.client.cluster.id}`;
+            console.log(body.cluster)
             fetch(`${this.config.stats_uri}stats`, {
                 method: 'POST',
                 headers: {

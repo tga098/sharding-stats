@@ -57,9 +57,7 @@ class Server extends Events {
         let returnData = [];
         if(!shardData?.length || typeof shardData?.[0]?.cluster === "undefined") return returnData;
         for(const element of shardData) {
-            console.log("element.cluster", element.cluster)
             const clusterId = typeof element.cluster !== "undefined" && !isNaN(element.cluster) ? Number(element.cluster) : shardData?.filter(x => typeof x.cluster !== "undefined" && !isNaN(x.cluster)).length > 0 ? -1 : undefined;
-            console.log("element.cluster-2-", clusterId)
             const index = returnData.findIndex(x => x.cluster === clusterId);
             if(index < 0) returnData.push({ cluster: clusterId, shards: [element] });
             else returnData[index].shards.push(element);

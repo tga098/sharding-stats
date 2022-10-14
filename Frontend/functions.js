@@ -88,7 +88,7 @@ function refreshStats(i, code) {
       }
     })
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 

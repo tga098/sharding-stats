@@ -58,3 +58,8 @@ new Stats.Client(client, {
     authorizationkey: "your_secure_password", postinterval: 2000,
 })
 ```
+
+**Images**
+![image](https://user-images.githubusercontent.com/68145571/195786304-b6de6270-9161-464a-b91e-39c7b55a3be4.png)
+
+![image](https://user-images.githubusercontent.com/68145571/195786323-ab9c4e33-2c81-49ab-82e9-572498c5841f.png)

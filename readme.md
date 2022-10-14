@@ -53,6 +53,8 @@ function receiveStatsDataManually() {
 
  - [See example Data which gets returned by `StatsServer.getStatsData()`](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/statsDataReturnData.md)
 
+ - [See the **self Hosting** Example](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/selfHostingExampel.md)
+
 You can start now start your Dashboard with node server.js.
 
 **Go to the Discord Developer Portal and to Authorization and insert your redirect_uri there**

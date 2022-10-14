@@ -1,5 +1,6 @@
-**Simple (self-hosted) Stats Dashboard:**
-> for with #:package:│hybrid-sharding 
+**Simple (self-hosted) Stats Front-End Page:**
+> Done with bootstrap
+> for with discord-hybrid-sharding 
 
 - create: `server.js` on your website host (can be same as bot host if you want)
 ```js

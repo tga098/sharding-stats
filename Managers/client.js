@@ -73,7 +73,7 @@ class Client {
         }
     }    
     deleteCachedShardStatus() {
-        return fetch(`${this.config.stats_uri}deleteShards`, {
+        return fetch(`${this.config.stats_uri}api/deleteShards`, {
             method: 'POST',
             headers: {
                 'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),

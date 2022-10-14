@@ -1,6 +1,6 @@
 {
   "name": "sharding-stats",
-  "version": "0.5.1",
+  "version": "2.0.0",
   "description": "A cool Dashboard & Manager for showing Live Stats and managing your Discord Bot/Shards",
   "main": "index.js",
   "dependencies": {

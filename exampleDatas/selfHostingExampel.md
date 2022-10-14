@@ -51,7 +51,7 @@ app.listen(port, () => console.log("website ready"));
 ```js
 //const { ClusterClient } = require('discord-hybrid-sharding');
 //const Discord = require('discord.js');
-//const client = new Discord.Client()
+//const client = new Discord.Client({ intents: [Guilds,GuildMessages,GuildMembers] })
 //client.cluster = new ClusterClient(client);
 
 // however you create your client, it needs to be passed in the sharding stats

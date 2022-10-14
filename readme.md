@@ -1,5 +1,7 @@
 # Sharding Stats
 
+<img src="https://cdn.discordapp.com/attachments/911938193308385360/1030495533858566194/1665586951553.png">
+
 Discord Sharding Stats, made for Discord-Hybrid-Sharding
 - Included Clustering Stats
 

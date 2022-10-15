@@ -1,9 +1,14 @@
-# Sharding Stats
+# Discord Sharding Stats
 
 <img src="https://cdn.discordapp.com/attachments/911938193308385360/1030495533858566194/1665586951553.png">
 
-Discord Sharding Stats
+*An automated Sharding Stats Dashboard-Server Manager, with which you can host your **Shard Stats** __externally__!*
+
 - Included Clustering Stats
+- Works with discord.js and discord.js sharding
+- Works with discord.js and discord-hybrid-sharding
+- Works with any other discord lib, via the [customPoster](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/customPoster.md) Option
+
 
 # Download
 
@@ -57,6 +62,9 @@ function receiveStatsDataManually() {
 
  - [See the **self Hosting** Example](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/selfHostingExampel.md)
 
+ - [See the **custom Data Posting** Example](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/customPoster.md)
+
+
 You can start now start your Dashboard with node server.js.
 
 **Go to the Discord Developer Portal and to Authorization and insert your redirect_uri there**
@@ -86,6 +94,12 @@ const Poster = new Stats.Client(client, {
 /* YOUR BOT CODE STUFF */
 client.login(`Your_Bot_Token`)
 ```
+
+**WAIT!**
+
+- What if you want to post your own Shard Data with the opportunity to send **MORE** and **CUSTOMICED** Data?
+- Or what if you use a different client, than discord.js ?
+- you can do everything yourself, check out: [customPoster](https://github.com/tga098/sharding-stats/blob/v1.0.0/exampleDatas/customPoster.md)
 
 When you start your bot with or without Sharding, the Dashboard should show some information such as Status, Ram, Cpu, Ping, Guildcount and more data of each Shard and of all guilds in total.
 

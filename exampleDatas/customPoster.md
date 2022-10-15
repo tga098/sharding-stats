@@ -33,17 +33,26 @@ app.listen(3000, () => { console.log("Application started, listening on port 300
 
 Now to the client data-posting:
 
-
+### Example for discord.js with discord-sharding
 ```js
-const Stats = require('sharding-stats');
+// client creation
+const Discord = require("discord.js")
+const client = new Discord.Client({ 
+    /* ...your Client Options*/
+});
 
+// clustering
+const { ClusterClient } = require('discord-hybrid-sharding');
+client.cluster = new ClusterClient(client);
+
+// stats client
+const Stats = require('sharding-stats');
 const statsClient = new Stats.Client(client, {
     // this variable is IMPORTANT
     customPoster: true, // use your custom post stats function
     stats_uri: 'http://localhost:3333/',
     authorizationkey: "password",
 })
-
 // define when, and how often to post stats
 setInterval(() => postStats(), 2000);
 // function to post stats
@@ -80,7 +89,7 @@ You can transform that function `postStats` to what ever u need,
 
 You can even send custom data, just add it to the body!
 
-**Poster Example for [Eris](https://npmjs.com/eris)**
+### **Poster Example for [Eris](https://npmjs.com/eris)**
 
 ```js
 const Stats = require('sharding-stats');

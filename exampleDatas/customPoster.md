@@ -71,7 +71,7 @@ async function postStats() {
       guildids: filteredGuilds.map(x => x?.id),
       upsince: statsClient.uptime,
     };
-    await statsClient.sendPostData(body);
+    await statsClient.sendPostData(body); // it's important to call this "PER SHARD"
   }
 }
 ```
@@ -79,3 +79,23 @@ async function postStats() {
 You can transform that function `postStats` to what ever u need,
 
 You can even send custom data, just add it to the body!
+
+**Poster Example for [Eris](https://npmjs.com/eris)**
+
+```js
+const Stats = require('sharding-stats');
+
+const statsClient = new Stats.Client(client, {
+    // this variable is IMPORTANT
+    customPoster: true, // use your custom post stats function
+    stats_uri: 'http://localhost:3333/',
+    authorizationkey: "password",
+})
+
+// define when, and how often to post stats
+setInterval(() => postStats(), 2000);
+// function to post stats
+async function postStats() {
+    // coming soon
+}
+```

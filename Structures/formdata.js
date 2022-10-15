@@ -86,6 +86,7 @@ class FormData {
     humanize(rawdata) {
         if (Array.isArray(rawdata)) return rawdata.map(this.humanize);
         return { 
+            ...rawdata,
             status: statuses[rawdata.status],
             color: getStatusColor(rawdata.status),
             cpu: `${rawdata.cpu}%`, 

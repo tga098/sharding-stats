@@ -78,6 +78,7 @@ Follow the upper step before doing this step.
 
 Open your `bot.js` File, where you login in the Client and insert this:
 
+- If you are on [**ERIS** check out this Example](https://github.com/tga098/sharding-stats/blob/v2.1.0/exampleDatas/customPoster.md#poster-example-for-eris)
 **File: `bot.js`** 
 
 ```js

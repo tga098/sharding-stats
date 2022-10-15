@@ -5,31 +5,43 @@ class Client {
         this.client = client;
         this.config = config;
         this.shardMessage = new Map();
-        this._validateOptions();
         this.deleteCachedShardStatus();
-        this._attachEvents();
-        this._autopost();
+        if(!config.customPoster) {
+            this._validateOptions();
+            this._attachEvents();
+            this._autopost();
+        }
     }
 
+    async sendPostData(body) {
+        return fetch(`${this.config.stats_uri}stats`, {
+            method: 'POST',
+            headers: {
+                'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body),
+        }).then(res => res.json()).then((m) => this._handleMessage(m)).catch((e) => console.error(new Error(e)))
+    }
     async post() {
         const shards = [...this.client.ws.shards.values()]
         const guilds = [...this.client.guilds.cache.values()]
-
         for (let i = 0; i < shards.length; i++) {
             const filteredGuilds = guilds ? guilds.filter(x => x.shardId === shards[i].id) : [];
             /* // example data
-            {
-                id: 0,
-                status: 0,
-                ping: 10,
-                cpu: 3.45,
-                ram: { rss: 385, heapUsed: 185 }
-                membercount: 30446,
-                guildcount: 444,
-                guildids: [ '907888291725053965',  '957913119861129217',  '868774602451607572', '...' ],
-                upsince: 8879483,
-                cluster: 0, // only gets added, if you have clustering ;)
-            },
+                {
+                    id: 0,
+                    status: 0,
+                    ping: 10,
+                    cpu: 3.45,
+                    ram: { rss: 385, heapUsed: 185 }
+                    membercount: 30446,
+                    guildcount: 444,
+                    guildids: [ '907888291725053965',  '957913119861129217',  '868774602451607572', '...' ],
+                    upsince: 8879483,
+                    cluster: 0, // only gets added, if you have clustering ;)
+                },
             */
            const ram = this.getRamUsageinMB();
            const cpu = await this.receiveCPUUsage();
@@ -47,15 +59,7 @@ class Client {
                 upsince,
             };
             if (typeof this.client?.cluster?.id !== "undefined") body.cluster = `${this.client.cluster.id}`;
-            fetch(`${this.config.stats_uri}stats`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body),
-            }).then(res => res.json()).then((m) => this._handleMessage(m)).catch((e) => console.error(new Error(e)))
+            this.sendPostData(body);
         }
     }
     async receiveCPUUsage() {

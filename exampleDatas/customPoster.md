@@ -105,6 +105,30 @@ const statsClient = new Stats.Client(client, {
 setInterval(() => postStats(), 2000);
 // function to post stats
 async function postStats() {
-    // coming soon
+  // all shards of that client-process
+  const shards = [...this.client.shards.values()];
+  // all guilds of that cluster
+  const guilds = [...this.client.guilds.values()];
+  for (let i = 0; i < shards.length; i++) {
+    // get all guilds in that shard
+    const filteredGuilds = guilds ? guilds
+       .filter(x => x.shard.id === shards[i].id)
+       .filter(Boolean)
+      : [];
+    const body = {
+      id: shards[i] ? shards[i].id : NaN,
+      cluster: client.cluster?.id,
+      status: shards[i] ? shards[i].status : 5,
+      cpu: await statsClient.receiveCPUUsage(), 
+      ram: statsClient.getRamUsageinMB(),
+      message: "latest shard debug message",
+      ping: shards[i] ? shards[i].latency : NaN,
+      membercount: filteredGuilds.map(x => x.memberCount || x.members?.size || 0).reduce((a, b) => a + b, 0),
+      guildcount: filteredGuilds.length,
+      guildids: filteredGuilds.map(x => x?.id),
+      upsince: statsClient.uptime,
+    };
+    await statsClient.sendPostData(body); // it's important to call this "PER SHARD"
+  }
 }
 ```

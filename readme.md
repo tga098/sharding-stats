@@ -83,7 +83,7 @@ Open your `bot.js` File, where you login in the Client and insert this:
 **File: `bot.js`** 
 
 ```js
-const { Client } = require('sharding-stats');
+const { Stats } = require('sharding-stats');
 // create ur client
 const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [ GatewayIntentBits.Guilds ] });

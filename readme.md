@@ -41,7 +41,7 @@ const StatsServer = new Stats.Server(app, {
         client_id: "Discord Bot ID",
         client_secret: "Discord Bot Client_Secret (Not Token)"
     },
-    stats_uri: "http://localhost:3000/", //Base URL
+    stats_uri: "http://localhost:3000/", //Base URL. You Can also use other domains like https://example.com or a replit domain too like https://repository.username.repl.co
     redirect_uri: "http://localhost:3000/login", //Landing Page
     owners: ["Bot_Owner1", "Bot_Owner2"],
     authorizationkey: "Your Password for verifying requests",
@@ -83,7 +83,7 @@ Open your `bot.js` File, where you login in the Client and insert this:
 **File: `bot.js`** 
 
 ```js
-const { Client } = require('sharding-stats');
+const Stats = require('sharding-stats');
 // create ur client
 const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [ GatewayIntentBits.Guilds ] });

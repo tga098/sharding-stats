@@ -287,7 +287,7 @@ class Server extends Events {
         if (!this.config.bot.client_secret) throw new Error(`Missing Parameter: client_secret has not been provided`)
 
         if (!this.config.stats_uri) throw new Error(`Missing Parameter: stats_uri has not been provided`)
-        if (!this.config.redirect_uri) throw new Error(`Missing Parameter: redirect_uri has not been provided`)
+        //if (!this.config.redirect_uri) throw new Error(`Missing Parameter: redirect_uri has not been provided`)
         if (!this.config.owners) throw new Error(`Missing Parameter: owners(owner discord id) has not been provided`);
         if (!this.config.scope) this.config.scope = ['identify'];
         if (!this.config.postinterval) this.config.postinterval = 2500;

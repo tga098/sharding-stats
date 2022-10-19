@@ -87,7 +87,7 @@ class Server extends Events {
         passport.use(new Strategy({
             clientID: this.config.bot.client_id,
             clientSecret: this.config.bot.client_secret,
-            callbackURL: "http://localhost:3000/callback",
+            callbackURL: this.config.redirect_uri,
             scope: this.config.scope
         }, (accessToken, refreshToken, profile, done) => {
             process.nextTick(() => done(null, profile))
@@ -121,7 +121,7 @@ class Server extends Events {
                     this.killShard.delete(rawdata.id)
                     res.send({ kill: true, shard: rawdata.id })
                 } else {
-                    res.send({ status: `Success` })
+                    res.send({ status: ` Successfully completed the opration` })
                 }
                 return res.end();
             } catch (error) {
@@ -171,7 +171,7 @@ class Server extends Events {
                 req.session.backURL = req.session.backURL
             } else if (req.headers.referer) {
                 const parsed = url.parse(req.headers.referer);
-                if (parsed.hostname == app.locals.domain) {
+                if (parsed.hostname == this.app.locals.domain) {
                     req.session.backURL = parsed.path
                 }
             } else {
@@ -183,11 +183,10 @@ class Server extends Events {
         this.app.get(`/callback`, passport.authenticate(`discord`, { failureRedirect: "/" }), async (req, res) => {
             if (this.config.bannedUsers?.includes?.(req?.user?.id)) {
                 req.session.destroy(() => {
-                    res.json({ login: false, message: `You have been blocked from the Dashboard.`, logout: true })
+                    res.json({ login: false, message: `You have been banned BY The OWNER/DEVLOPER from the Dashboard.`, logout: true })
                     req.logout();
                 });
             } else {
-                //  client.channels.fetch(`947175648768688184`).send(`${req.user.tag} Logged in`)
                 res.redirect(`/`)
             }
         }); 
@@ -209,7 +208,7 @@ class Server extends Events {
             const shardData = FormData.shardData(0, { all: true })
             const totalData = FormData.totalData()
             if (!this.config.owners.includes(req.user.id)) {
-                return res.send(`ACCESS DENIED`)
+                return res.send(`YOU CAN'T ACCESS IT BECAUSE YOU ARE NOT A OWNER`)
             }
             res.render('starter', {
                 shards: FormData.humanize(shardData),
@@ -288,8 +287,8 @@ class Server extends Events {
         if (!this.config.bot.client_secret) throw new Error(`Missing Parameter: client_secret has not been provided`)
 
         if (!this.config.stats_uri) throw new Error(`Missing Parameter: stats_uri has not been provided`)
-        //    if (!this.config.redirect_uri) throw new Error(`Missing Parameter: redirect_uri has not been provided`)
-        if (!this.config.owners) throw new Error(`Missing Parameter: owners has not been provided`);
+        //if (!this.config.redirect_uri) throw new Error(`Missing Parameter: redirect_uri has not been provided`)
+        if (!this.config.owners?.length) throw new Error(`Missing Parameter: owners["owner-DC-Id"] has not been provided`);
         if (!this.config.scope) this.config.scope = ['identify'];
         if (!this.config.postinterval) this.config.postinterval = 2500;
         if (!this.config.markShardsDeadafter) this.config.markShardsDeadafter = 10000;

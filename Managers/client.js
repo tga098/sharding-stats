@@ -18,7 +18,7 @@ class Client {
             method: 'POST',
             headers: {
                 'Authorization': Buffer.from(this.config.authorizationkey).toString('base64'),
-                'Accept': 'application/json',
+                'Accept': 'application/json, text/plain, */*','User-Agent': '*',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(body),

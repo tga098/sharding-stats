@@ -1,0 +1,29 @@
+<script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="dist/css/index.css">
+
+
+<nav class="navbar navbar-expand-lg justify-content-center navbar-dark" style="background-color: #1B1D20;">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="text-decoration: none;color:#1B1D20">
+            
+        </a>  <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        
+          <li style="font-size:20px"><a href="/admin" class="nav-link px-2 text-white"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+          <li style="font-size:20px"><a href="/stats" class="nav-link px-2 text-white"><i class="fa fa-tachometer" aria-hidden="true"></i> Manage</a></li>
+         
+        </ul>
+        <div class="btn-group">
+          <% if(user && user.id) { %>
+            <button type="button" class="btn btn-outline-light me-2" onclick="location.href='/logout'"><i class="fa fa-sign-out" aria-hidden="true"></i>LOGOUT</button>
+            
+    </div>
+        <% }else { %>
+          <a class="btn btn-outline-light me-2" onclick="location.href='/login'" type="button"><i class="fa fa-sign-in" aria-hidden="true"></i></i> LOGIN</a>
+        <% }%>
+  
+            </li>
+        </ul>
+    </div>
+</nav>

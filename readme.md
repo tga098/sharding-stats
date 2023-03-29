@@ -41,9 +41,8 @@ const StatsServer = new Stats.Server(app, {
         client_id: "Discord Bot ID",
         client_secret: "Discord Bot Client_Secret (Not Token)"
     },
-    stats_uri: "http://localhost:3000/", //Base URL. Can be IP:PORT or Domains behind a proxy or just a Domain.
-                                         // https://domain.com | https://repository.username.repl.co | https://server.stats-of-me.xyz
-    redirect_uri: "http://localhost:3000/login", //Landing Page
+    stats_uri: "http://localhost:3000/", //Base URL. Can be IP:PORT or Domains behind a proxy or just a Domain. // https://domain.com | https://repository.username.repl.co | https://server.stats-of-me.xyz
+    redirect_uri: "http://localhost:3000/callback", // Add this same url used here in the "Redirects" section under 0auth2 section of your bot in the dev portal of discord
     owners: ["Bot_Owner1", "Bot_Owner2"],
     authorizationkey: "Your Password for verifying requests",
 });

@@ -68,7 +68,7 @@ function receiveStatsDataManually() {
 You can start now start your Dashboard with node server.js.
 
 **Go to the Discord Developer Portal and to Authorization and insert your redirect_uri there**
-![](https://media.discordapp.net/attachments/756591979097227295/871290682201997332/unknown.png?width=1025&height=383)
+![](https://i.imgur.com/puSV4KS.png?width=1025&height=383)
 
 Now go to the stats_uri link or your choosen link and you should be redirected to the Dashboard with no Data.
 
